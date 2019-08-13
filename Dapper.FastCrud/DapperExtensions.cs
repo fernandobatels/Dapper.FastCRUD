@@ -251,6 +251,25 @@ namespace Dapper.FastCrud
         /// <typeparam name="TEntity">Entity type</typeparam>
         /// <param name="connection"></param>
         /// <param name="statementOptions">Optional statement options (usage: statement => statement.SetTimeout().AttachToTransaction()...)</param>
+        /// <param name="transaction">Transaction for override the AttachToTransaction</param>
+        /// <returns>The record count</returns>
+        public static int Count<TEntity>(
+            this IDbConnection connection,
+            Action<IConditionalSqlStatementOptionsBuilder<TEntity>> statementOptions,
+            IDbTransaction transaction)
+        {
+            var options = new ConditionalSqlStatementOptionsBuilder<TEntity>();
+            statementOptions?.Invoke(options);
+            options.AttachToTransaction(transaction);
+            return options.SqlStatementsFactoryChain().Count(connection, options);
+        }
+
+        /// <summary>
+        /// Counts all the records in a table or a range of records if a conditional clause was set up in the statement options.
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <param name="connection"></param>
+        /// <param name="statementOptions">Optional statement options (usage: statement => statement.SetTimeout().AttachToTransaction()...)</param>
         /// <returns>The record count</returns>
         public static Task<int> CountAsync<TEntity>(
             this IDbConnection connection,
@@ -259,6 +278,25 @@ namespace Dapper.FastCrud
             var options = new ConditionalSqlStatementOptionsBuilder<TEntity>();
             statementOptions?.Invoke(options);
             return options.SqlStatementsFactoryChain().CountAsync(connection, options);
+        }
+
+        /// <summary>
+        /// Queries the database for a set of records.
+        /// </summary>
+        /// <typeparam name="TEntity">Entity type</typeparam>
+        /// <param name="connection"></param>
+        /// <param name="statementOptions">Optional statement options (usage: statement => statement.SetTimeout().AttachToTransaction()...)</param>
+        /// <param name="transaction">Transaction for override the AttachToTransaction</param>
+        /// <returns>The record count</returns>
+        public static IEnumerable<TEntity> Find<TEntity>(
+            this IDbConnection connection,
+            Action<IRangedBatchSelectSqlSqlStatementOptionsOptionsBuilder<TEntity>> statementOptions,
+            IDbTransaction transaction)
+        {
+            var options = new RangedBatchSelectSqlSqlStatementOptionsOptionsBuilder<TEntity>();
+            statementOptions?.Invoke(options);
+            options.AttachToTransaction(transaction);
+            return options.SqlStatementsFactoryChain().BatchSelect(connection, options);
         }
 
         /// <summary>
